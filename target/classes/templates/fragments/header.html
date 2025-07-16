@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <header th:fragment="header">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+                <a class="navbar-brand" href="/">RentACar</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">Strona główna</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/vehicles">Pojazdy</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/vehicles/map">Mapa</a>
+                        </li>
+                        <!-- Only show admin panel link for admin users -->
+                        <li class="nav-item" sec:authorize="hasAuthority('ROLE_ADMIN')">
+                            <a class="nav-link" href="/admin">Panel administratora</a>
+                        </li>
+                    </ul>
+                    <div class="d-flex">
+                        <ul class="navbar-nav">
+                            <!-- Only show profile link for authenticated users -->
+                            <li class="nav-item" sec:authorize="isAuthenticated()">
+                                <a class="nav-link" href="/user/profile">Mój profil</a>
+                            </li>
+                            <!-- Only show reservations link for authenticated users -->
+                            <li class="nav-item" sec:authorize="isAuthenticated()">
+                                <a class="nav-link" href="/user/reservations">Moje rezerwacje</a>
+                            </li>
+                            <!-- Only show login/register links for anonymous users -->
+                            <li class="nav-item" sec:authorize="!isAuthenticated()">
+                                <a class="nav-link" href="/login">Zaloguj się</a>
+                            </li>
+                            <li class="nav-item" sec:authorize="!isAuthenticated()">
+                                <a class="nav-link" href="/register">Zarejestruj się</a>
+                            </li>
+                            <!-- Only show logout for authenticated users -->
+                            <li class="nav-item" sec:authorize="isAuthenticated()">
+                                <form th:action="@{/logout}" method="post">
+                                    <button type="submit" class="btn btn-link nav-link">Wyloguj się</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+</body>
+</html>

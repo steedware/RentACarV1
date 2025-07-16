@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${vehicle.brand + ' ' + vehicle.model} + ' - RentACar'"></title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <header th:replace="fragments/header :: header"></header>
+    
+    <main class="container py-5">
+        <div class="row">
+            <div class="col-md-7">
+                <div class="card mb-4">
+                    <img th:if="${vehicle.imageUrl}" th:src="${vehicle.imageUrl}" class="card-img-top" alt="Zdjęcie pojazdu" style="max-height: 400px; object-fit: cover;">
+                    <div th:unless="${vehicle.imageUrl}" class="card-img-top bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 400px;">
+                        <span>Brak dostępnego zdjęcia</span>
+                    </div>
+                    <div class="card-body">
+                        <h2 class="card-title" th:text="${vehicle.brand + ' ' + vehicle.model}"></h2>
+                        <div class="d-flex mb-3">
+                            <span class="badge bg-info me-2" th:text="${vehicle.type}"></span>
+                            <span class="badge bg-secondary me-2" th:text="${vehicle.year}"></span>
+                            <span class="badge bg-dark" th:text="${vehicle.color}"></span>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6 col-md-3 mb-2">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-people-fill me-2 text-primary fs-5"></i>
+                                    <span th:text="${vehicle.seats + ' miejsc'}"></span>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3 mb-2">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-fuel-pump me-2 text-primary fs-5"></i>
+                                    <span th:text="${vehicle.fuelType}"></span>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3 mb-2">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-palette me-2 text-primary fs-5"></i>
+                                    <span th:text="${vehicle.color}"></span>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3 mb-2">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-tag me-2 text-primary fs-5"></i>
+                                    <span th:text="${vehicle.licensePlate}"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3" th:if="${vehicle.rating != null}">
+                            <h5>Ocena</h5>
+                            <div class="d-flex align-items-center">
+                                <div class="me-2">
+                                    <span class="fs-4 fw-bold" th:text="${#numbers.formatDecimal(vehicle.rating, 1, 1)}"></span>
+                                    <span class="text-warning">★</span>
+                                </div>
+                                <span class="text-muted" th:text="${'(' + vehicle.ratingCount + ' opinii)'}"></span>
+                            </div>
+                        </div>
+                        
+                        <h5>Lokalizacja pojazdu</h5>
+                        <div id="vehicle-map" style="height: 300px;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-5">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Zarezerwuj ten pojazd</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fs-5 fw-bold text-primary" th:text="${vehicle.dailyRate + ' zł/dzień'}"></span>
+                            <div>
+                                <!-- Add Edit button with admin authorization -->
+                                <a th:if="${#authorization.expression('hasAuthority(''ROLE_ADMIN'')')}" 
+                                   th:href="@{/vehicles/update/{id}(id=${vehicle.id})}" 
+                                   class="btn btn-outline-primary me-2">Edytuj pojazd</a>
+                                <a th:href="@{/vehicles/{id}(id=${vehicle.id})}" class="btn btn-primary">Zobacz szczegóły</a>
+                            </div>
+                        </div>
+                        
+                        <form th:action="@{/reservations/create/{id}(id=${vehicle.id})}" method="get">
+                            <div class="mb-3">
+                                <label for="startDate" class="form-label">Data i godzina odbioru</label>
+                                <input type="datetime-local" class="form-control" id="startDate" name="startDate" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="endDate" class="form-label">Data i godzina zwrotu</label>
+                                <input type="datetime-local" class="form-control" id="endDate" name="endDate" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Całkowity koszt</label>
+                                <p class="form-control-plaintext fs-5 fw-bold" id="totalCost">-</p>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100" sec:authorize="isAuthenticated()">Kontynuuj rezerwację</button>
+                            <a href="/login" class="btn btn-outline-primary w-100" sec:authorize="isAnonymous()">Zaloguj się, aby zarezerwować</a>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Wyposażenie</h5>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i> Klimatyzacja
+                        </li>
+                        <li class="list-group-item">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i> Bluetooth
+                        </li>
+                        <li class="list-group-item">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i> Kamera cofania
+                        </li>
+                        <li class="list-group-item">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i> System nawigacji
+                        </li>
+                        <li class="list-group-item">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i> Porty USB do ładowania
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer th:replace="fragments/footer :: footer"></footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script th:inline="javascript">
+        // Inicjalizacja mapy
+        const vehicleLat = /*[[${vehicle.latitude}]]*/ "${vehicle.latitude}";
+        const vehicleLong = /*[[${vehicle.longitude}]]*/ "${vehicle.longitude}";
+        const vehicleName = /*[[${vehicle.brand + ' ' + vehicle.model}]]*/ "${vehicle.brand} ${vehicle.model}";
+        const dailyRate = /*[[${vehicle.dailyRate}]]*/ "${vehicle.dailyRate}";
+        
+        const map = L.map('vehicle-map').setView([vehicleLat, vehicleLong], 14);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        // Dodaj znacznik dla pojazdu
+        L.marker([vehicleLat, vehicleLong]).addTo(map)
+            .bindPopup(vehicleName)
+            .openPopup();
+        
+        // Oblicz całkowity koszt na podstawie wybranych dat
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+        const totalCostElement = document.getElementById('totalCost');
+        
+        function calculateTotalCost() {
+            if (startDateInput.value && endDateInput.value) {
+                const startDate = new Date(startDateInput.value);
+                const endDate = new Date(endDateInput.value);
+                
+                if (endDate > startDate) {
+                    const diffTime = Math.abs(endDate - startDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    const totalCost = diffDays * dailyRate;
+                    
+                    totalCostElement.textContent = `${totalCost.toFixed(2)} zł`;
+                } else {
+                    totalCostElement.textContent = 'Data końcowa musi być późniejsza niż początkowa';
+                }
+            }
+        }
+        
+        startDateInput.addEventListener('change', calculateTotalCost);
+        endDateInput.addEventListener('change', calculateTotalCost);
+    </script>
+</body>
+</html>

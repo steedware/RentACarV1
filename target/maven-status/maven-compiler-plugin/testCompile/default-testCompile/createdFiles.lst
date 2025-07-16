@@ -1,0 +1,6 @@
+com\rentacar\config\TestConfig.class
+com\rentacar\service\VehicleServiceTest.class
+com\rentacar\service\MockBean.class
+com\rentacar\config\TestContextConfig.class
+com\rentacar\service\ReservationServiceTest.class
+com\rentacar\config\MockGeometryConfig.class

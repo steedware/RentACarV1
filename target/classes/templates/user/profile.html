@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil użytkownika - RentACar</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <header th:replace="~{fragments/header :: header}"></header>
+    
+    <main class="container py-5">
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <div class="d-flex flex-column align-items-center text-center mb-3">
+                            <div class="avatar-placeholder mb-2" th:if="${user.profileImage == null}">
+                                <i class="bi bi-person-circle fs-1"></i>
+                            </div>
+                            <img th:if="${user.profileImage != null}" th:src="@{'/uploads/profiles/' + ${user.profileImage}}" 
+                                 class="rounded-circle" alt="Profile Image" style="width: 100px; height: 100px; object-fit: cover;">
+                            <h5 class="mt-2 mb-0" th:text="${user.firstName + ' ' + user.lastName}">User Name</h5>
+                            <span class="text-secondary" th:text="${user.email}">user@example.com</span>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Moje rezerwacje
+                                <span class="badge bg-primary rounded-pill" th:text="${user.reservations != null ? user.reservations.size() : '0'}">0</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <a href="/user/profile/edit" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil-square me-2"></i> Edytuj profil
+                    </a>
+                    <a href="/user/reservations" class="btn btn-outline-secondary">
+                        <i class="bi bi-calendar-event me-2"></i> Moje rezerwacje
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-md-9">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h4 class="mb-0">Informacje o profilu</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-sm-3">
+                                <h6 class="mb-0">Imię i nazwisko</h6>
+                            </div>
+                            <div class="col-sm-9 text-secondary" th:text="${user.firstName + ' ' + user.lastName}">
+                                John Doe
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row mb-3">
+                            <div class="col-sm-3">
+                                <h6 class="mb-0">Email</h6>
+                            </div>
+                            <div class="col-sm-9 text-secondary" th:text="${user.email}">
+                                john@example.com
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row mb-3">
+                            <div class="col-sm-3">
+                                <h6 class="mb-0">Telefon</h6>
+                            </div>
+                            <div class="col-sm-9 text-secondary" th:text="${user.phoneNumber}">
+                                (123) 456-7890
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row mb-3">
+                            <div class="col-sm-3">
+                                <h6 class="mb-0">Adres</h6>
+                            </div>
+                            <div class="col-sm-9 text-secondary">
+                                <div class="mb-3">
+                                    <h5>Adres</h5>
+                                    <p th:if="${user.address != null}">
+                                        <span th:text="${user.address.street != null && !user.address.street.isEmpty() ? user.address.street : ''}"></span>
+                                        <span th:if="${user.address.city != null && !user.address.city.isEmpty()}">, <span th:text="${user.address.city}"></span></span>
+                                        <span th:if="${user.address.postalCode != null && !user.address.postalCode.isEmpty()}">, <span th:text="${user.address.postalCode}"></span></span>
+                                        <span th:if="${user.address.state != null && !user.address.state.isEmpty()}">, <span th:text="${user.address.state}"></span></span>
+                                        <span th:if="${user.address.country != null && !user.address.country.isEmpty()}">, <span th:text="${user.address.country}"></span></span>
+                                    </p>
+                                    <p th:if="${user.address == null || (user.address.street == null && user.address.city == null && user.address.postalCode == null && user.address.state == null && user.address.country == null)}">
+                                        Nie podano adresu
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-white">
+                        <h4 class="mb-0">Ostatnie rezerwacje</h4>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${user.reservations == null || user.reservations.isEmpty()}" class="text-center py-3">
+                            <p class="mb-0">Nie masz jeszcze żadnych rezerwacji.</p>
+                            <a href="/vehicles" class="btn btn-primary mt-3">Przeglądaj dostępne pojazdy</a>
+                        </div>
+                        <div th:if="${user.reservations != null && !user.reservations.isEmpty()}" class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Pojazd</th>
+                                        <th>Data rozpoczęcia</th>
+                                        <th>Data zakończenia</th>
+                                        <th>Status</th>
+                                        <th>Akcje</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="reservation : ${user.reservations}">
+                                        <td th:text="${reservation.vehicle.brand + ' ' + reservation.vehicle.model}"></td>
+                                        <td th:text="${#temporals.format(reservation.startDate, 'dd-MM-yyyy HH:mm')}"></td>
+                                        <td th:text="${#temporals.format(reservation.endDate, 'dd-MM-yyyy HH:mm')}"></td>
+                                        <td>
+                                            <span class="badge" 
+                                                th:classappend="${reservation.status.name() == 'CONFIRMED' ? 'bg-success' : 
+                                                               (reservation.status.name() == 'PENDING' ? 'bg-warning' : 
+                                                               (reservation.status.name() == 'CANCELED' ? 'bg-danger' : 'bg-info'))}" 
+                                                th:text="${reservation.status}"></span>
+                                        </td>
+                                        <td>
+                                            <a th:href="@{/reservations/details/{id}(id=${reservation.id})}" class="btn btn-sm btn-outline-primary">Szczegóły</a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

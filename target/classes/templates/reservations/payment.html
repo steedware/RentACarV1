@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Płatność</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <header th:replace="fragments/header :: header"></header>
+    
+    <main class="container my-5">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4>Płatność</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <img th:src="@{${reservation.vehicle.imageUrl}}" class="img-fluid rounded" alt="Zdjęcie pojazdu">
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body p-2">
+                                    <h6 th:text="${reservation.vehicle.brand + ' ' + reservation.vehicle.model}"></h6>
+                                    <div class="small">
+                                        <span class="badge bg-info" th:text="${reservation.vehicle.type}"></span>
+                                        <span th:text="${reservation.vehicle.year}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <div id="error-message" class="alert alert-danger" style="display: none;"></div>
+                        
+                        <h5>Informacje o płatności</h5>
+                        <form id="payment-form" class="mt-3">
+                            <div class="mb-3">
+                                <label for="cardholder-name" class="form-label">Imię i nazwisko właściciela karty</label>
+                                <input id="cardholder-name" type="text" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="card-element" class="form-label">Karta kredytowa lub debetowa</label>
+                                <div id="card-element" class="form-control"></div>
+                                <div id="card-errors" class="text-danger small mt-2"></div>
+                            </div>
+                            
+                            <button id="submit-button" class="btn btn-primary w-100">
+                                <span id="button-text">Zapłać <span th:text="${reservation.totalCost}"></span> zł</span>
+                                <span id="spinner" class="spinner-border spinner-border-sm" role="status" style="display: none;"></span>
+                            </button>
+                        </form>
+                    </div>
+                    <div class="card-footer bg-light">
+                        <div class="d-flex align-items-center">
+                            <span class="me-2"><i class="bi bi-shield-lock fs-4 text-success"></i></span>
+                            <small class="text-muted">Twoje dane płatności są bezpieczne i zaszyfrowane</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer th:replace="fragments/footer :: footer"></footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:inline="javascript">
+        // Inicjalizacja Stripe
+        const stripe = Stripe(/*[[${stripePublicKey}]]*/);
+        const clientSecret = '[[${clientSecret}]]';
+        const reservationId = '[[${reservation.id}]]';
+        
+        const elements = stripe.elements();
+        const cardElement = elements.create('card');
+        cardElement.mount('#card-element');
+        
+        // Obsługa błędów walidacji
+        cardElement.on('change', function(event) {
+            const displayError = document.getElementById('card-errors');
+            if (event.error) {
+                displayError.textContent = event.error.message;
+            } else {
+                displayError.textContent = '';
+            }
+        });
+        
+        // Obsługa przesyłania formularza
+        const form = document.getElementById('payment-form');
+        const submitButton = document.getElementById('submit-button');
+        const buttonText = document.getElementById('button-text');
+        const spinner = document.getElementById('spinner');
+        
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            // Wyłączenie przycisku, aby zapobiec wielokrotnym kliknięciom
+            submitButton.disabled = true;
+            buttonText.style.display = 'none';
+            spinner.style.display = 'inline-block';
+            
+            const cardholderName = document.getElementById('cardholder-name').value;
+            
+            const { paymentIntent, error } = await stripe.confirmCardPayment(clientSecret, {
+                payment_method: {
+                    card: cardElement,
+                    billing_details: {
+                        name: cardholderName
+                    }
+                }
+            });
+            
+            if (error) {
+                // Pokaż komunikat o błędzie
+                const errorMessage = document.getElementById('error-message');
+                errorMessage.textContent = error.message;
+                errorMessage.style.display = 'block';
+                
+                // Włączenie przycisku ponownie
+                submitButton.disabled = false;
+                buttonText.style.display = 'inline-block';
+                spinner.style.display = 'none';
+            } else if (paymentIntent.status === 'succeeded') {
+                // Płatność zakończona sukcesem, potwierdź z serwerem
+                confirmPaymentWithServer(paymentIntent.id)
+                    .then(response => {
+                        if (response.success) {
+                            window.location.href = '/reservations/details/' + reservationId + '?success=true';
+                        } else {
+                            throw new Error(response.error || 'Błąd przetwarzania płatności');
+                        }
+                    })
+                    .catch(err => {
+                        const errorMessage = document.getElementById('error-message');
+                        errorMessage.textContent = err.message;
+                        errorMessage.style.display = 'block';
+                        
+                        // Włączenie przycisku ponownie
+                        submitButton.disabled = false;
+                        buttonText.style.display = 'inline-block';
+                        spinner.style.display = 'none';
+                    });
+            }
+        });
+        
+        // Potwierdź płatność z serwerem
+        async function confirmPaymentWithServer(paymentIntentId) {
+            const response = await fetch('/reservations/confirm-payment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'paymentIntentId': paymentIntentId,
+                    'reservationId': reservationId
+                })
+            });
+            
+            return response.json();
+        }
+    </script>
+</body>
+</html>

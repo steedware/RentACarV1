@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <footer th:fragment="footer" class="bg-dark text-white py-4 mt-auto">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>RentACar</h5>
+                    <p>Twój niezawodny partner w wynajmie pojazdów</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Linki</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/">Strona główna</a></li>
+                        <li><a href="/vehicles">Pojazdy</a></li>
+                        <li><a href="/vehicles/map">Mapa pojazdów</a></li>
+                        <li><a href="/register">Zarejestruj się</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Kontakt</h5>
+                    <address>
+                        <i class="bi bi-geo-alt-fill me-2"></i> ul. Przykładowa 123, 00-000 Warszawa<br>
+                        <i class="bi bi-telephone-fill me-2"></i> +48 123 456 789<br>
+                        <i class="bi bi-envelope-fill me-2"></i> kontakt@rentacar.pl
+                    </address>
+                    <div class="mt-3">
+                        <a href="#" class="me-2"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="me-2"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="me-2"><i class="bi bi-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center">
+                <p class="mb-0">© 2025 RentACar. Wszelkie prawa zastrzeżone.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
