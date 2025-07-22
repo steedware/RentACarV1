@@ -1,93 +1,93 @@
-# RentACar - System Wypożyczania Samochodów z Geolokalizacją
+# RentACar - Car Rental System with Geolocation
 
-## Przegląd
+## Overview
 
-RentACar to kompleksowy system wypożyczania samochodów oparty na sieci, który umożliwia użytkownikom znajdowanie, rezerwowanie i wynajmowanie pojazdów z funkcjami śledzenia geolokalizacji w czasie rzeczywistym. Aplikacja zapewnia intuicyjny interfejs dla klientów do wyszukiwania pojazdów na podstawie lokalizacji, typu i dostępności, a także oferuje solidny panel administracyjny do zarządzania flotą.
+RentACar is a comprehensive web-based car rental system that allows users to find, book, and rent vehicles with real-time geolocation tracking features. The application provides an intuitive interface for customers to search for vehicles by location, type, and availability, and offers a robust admin panel for managing the fleet.
 
-## Funkcje
+## Features
 
-### Funkcje dla klientów
-- Rejestracja i uwierzytelnianie użytkowników
-- Wyszukiwanie pojazdów według lokalizacji, typu i dostępności
-- Wyświetlanie pojazdów na interaktywnych mapach
-- Dokonywanie rezerwacji z płatnościami online
-- Śledzenie historii i statusu wynajmu
-- Ocena i recenzowanie wynajmów pojazdów
+### Customer Features
+- User registration and authentication
+- Search vehicles by location, type, and availability
+- View vehicles on interactive maps
+- Make reservations with online payments
+- Track rental history and status
+- Rate and review vehicle rentals
 
-### Funkcje dla administratorów
-- Zarządzanie flotą (dodawanie, edytowanie, usuwanie pojazdów)
-- Zarządzanie użytkownikami
-- Nadzór nad rezerwacjami
-- Analizy i raporty
-- Śledzenie geolokalizacji floty
+### Admin Features
+- Fleet management (add, edit, delete vehicles)
+- User management
+- Reservation supervision
+- Analytics and reporting
+- Fleet geolocation tracking
 
-## Stos technologiczny
+## Tech Stack
 
 ### Backend
 - Java 17
 - Spring Boot 3.1.5
 - Spring Security
 - Spring Data JPA
-- Hibernate Spatial do geolokalizacji
+- Hibernate Spatial for geolocation
 
 ### Frontend
-- Szablony Thymeleaf
+- Thymeleaf templates
 - Bootstrap 5
-- Leaflet.js do map
+- Leaflet.js for maps
 - JavaScript
 
-### Baza danych
-- PostgreSQL z rozszerzeniem PostGIS do funkcji geograficznych
+### Database
+- PostgreSQL with PostGIS extension for geographic functions
 
-### Integracje zewnętrzne
-- Stripe do przetwarzania płatności
-- OpenStreetMap do geolokalizacji
+### External Integrations
+- Stripe for payment processing
+- OpenStreetMap for geolocation
 
-## Instrukcja instalacji
+## Installation Guide
 
-### Wymagania wstępne
-- Java 17 lub nowsza
+### Prerequisites
+- Java 17 or newer
 - Maven
-- PostgreSQL z rozszerzeniem PostGIS
-- Konto Stripe do przetwarzania płatności
+- PostgreSQL with PostGIS extension
+- Stripe account for payment processing
 
-### Konfiguracja bazy danych
-1. Utwórz bazę danych PostgreSQL o nazwie `rentacar`
-2. Włącz rozszerzenie PostGIS wykonując: `CREATE EXTENSION postgis;`
+### Database Setup
+1. Create a PostgreSQL database named `rentacar`
+2. Enable PostGIS extension by running: `CREATE EXTENSION postgis;`
 
-### Konfiguracja aplikacji
-1. Sklonuj repozytorium
-2. Skonfiguruj połączenie z bazą danych w pliku `application.properties`
-3. Ustaw klucze API Stripe w pliku `application.properties`
-4. Zbuduj projekt za pomocą Mavena: `mvn clean install`
-5. Uruchom aplikację: `mvn spring-boot:run`
-6. Dostęp do aplikacji pod adresem: `http://localhost:8080`
+### Application Setup
+1. Clone the repository
+2. Configure the database connection in `application.properties`
+3. Set Stripe API keys in `application.properties`
+4. Build the project with Maven: `mvn clean install`
+5. Run the application: `mvn spring-boot:run`
+6. Access the app at: `http://localhost:8080`
 
-### Początkowe konto administratora
-Podczas pierwszego uruchomienia tworzone jest konto administratora z następującymi danymi:
+### Default Admin Account
+On the first run, an admin account is created with the following credentials:
 - Email: admin@rentacar.com
-- Hasło: admin
+- Password: admin
 
-(Pamiętaj, aby zmienić te dane logowania w środowisku produkcyjnym)
+(Remember to change these credentials in production)
 
-## Struktura projektu
+## Project Structure
 
-- `src/main/java/com/rentacar/controller/` - Kontrolery webowe
-- `src/main/java/com/rentacar/model/` - Modele encji
-- `src/main/java/com/rentacar/repository/` - Repozytoria danych
-- `src/main/java/com/rentacar/service/` - Usługi logiki biznesowej
-- `src/main/java/com/rentacar/config/` - Klasy konfiguracyjne
-- `src/main/resources/templates/` - Szablony Thymeleaf
-- `src/main/resources/static/` - Zasoby statyczne (CSS, JS, obrazy)
+- `src/main/java/com/rentacar/controller/` - Web controllers
+- `src/main/java/com/rentacar/model/` - Entity models
+- `src/main/java/com/rentacar/repository/` - Data repositories
+- `src/main/java/com/rentacar/service/` - Business logic services
+- `src/main/java/com/rentacar/config/` - Configuration classes
+- `src/main/resources/templates/` - Thymeleaf templates
+- `src/main/resources/static/` - Static resources (CSS, JS, images)
 
-## Dokumentacja API
+## API Documentation
 
-Aplikacja udostępnia kilka punktów końcowych RESTful do geolokalizacji pojazdów i płatności:
+The application provides several RESTful endpoints for vehicle geolocation and payments:
 
-- `GET /api/vehicles/public/all` - Pobierz wszystkie dostępne pojazdy
-- `GET /api/vehicles/public/nearby` - Pobierz pojazdy w pobliżu współrzędnych
-- `PUT /api/vehicles/{id}/location` - Zaktualizuj lokalizację pojazdu
+- `GET /api/vehicles/public/all` - Get all available vehicles
+- `GET /api/vehicles/public/nearby` - Get vehicles near specific coordinates
+- `PUT /api/vehicles/{id}/location` - Update vehicle location
 
-## Licencja
+## License
 
-Ten projekt jest licencjonowany na podstawie licencji MIT - zobacz plik LICENSE, aby uzyskać szczegółowe informacje.
+This project is licensed under the MIT License – see the LICENSE file for details.
