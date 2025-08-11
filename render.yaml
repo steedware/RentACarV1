@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: rentacar-app
+    env: java
+    buildCommand: ./build.sh
+    startCommand: ./start.sh
+    plan: free
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: JAVA_TOOL_OPTIONS
+        value: "-Xmx512m"
+    autoDeploy: true
+
