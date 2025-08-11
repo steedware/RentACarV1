@@ -65,11 +65,21 @@ public class DatabaseConfig {
                 String[] credentials = userInfo.split(":");
                 String username = credentials[0];
                 String password = credentials[1];
-                String jdbcUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath();
+
+                // Obsługa portu - użyj 5432 jako domyślny jeśli port nie jest określony
+                int port = dbUri.getPort();
+                if (port == -1) {
+                    port = 5432; // domyślny port PostgreSQL
+                }
+
+                String jdbcUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + port + dbUri.getPath();
 
                 System.out.println("Parsed JDBC URL: " + jdbcUrl);
                 System.out.println("Username: " + username);
                 System.out.println("Password length: " + (password != null ? password.length() : 0));
+                System.out.println("Host: " + dbUri.getHost());
+                System.out.println("Port: " + port);
+                System.out.println("Path: " + dbUri.getPath());
 
                 HikariDataSource dataSource = new HikariDataSource();
                 dataSource.setJdbcUrl(jdbcUrl);
