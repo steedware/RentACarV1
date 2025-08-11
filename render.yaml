@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: rentacar
+    env: java
+    buildCommand: mvn clean package -DskipTests
+    startCommand: java -jar target/rentacar-0.0.1-SNAPSHOT.jar
+    plan: free
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: PORT
+        value: 8080
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        generateValue: true
+      - key: STRIPE_SECRET_KEY
+        value: your_stripe_secret_key_here
+      - key: STRIPE_PUBLIC_KEY
+        value: your_stripe_public_key_here
+
+databases:
+  - name: rentacar-db
+    plan: free
