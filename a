@@ -1,0 +1,5 @@
+[33m50c9f9d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;32mcofniecie_do_starej_wersji[m[33m)[m FORCE DatabaseConfig usage by disabling DataSourceAutoConfiguration
+[33m074e215[m Fix port parsing issue - use default port 5432 when URI port is -1
+[33m5b1d897[m CRITICAL FIX: Handle jdbc:postgresql:// format in DATABASE_URL parsing
+[33mf2a5361[m Force DatabaseConfig with @Primary annotation and direct HikariDataSource
+[33m4ddd2ba[m Fix DataSource configuration for proper JDBC URL parsing
